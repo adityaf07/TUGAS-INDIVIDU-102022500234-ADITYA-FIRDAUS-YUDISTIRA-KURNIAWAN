@@ -3,51 +3,47 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pelanggan;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request; 
+use Illuminate\Support\Facades\Gate;
 
 class PelangganController extends Controller
 {
     public function index()
     {
+        Gate::authorize('viewAny', Pelanggan::class);
         $pelanggan = Pelanggan::all();
-        return view('pelanggan.index', compact('pelanggan'));
+        return view('Pelanggan.index', compact('pelanggan'));
     }
 
     public function create()
     {
-        return view('pelanggan.form');
+        Gate::authorize('create', Pelanggan::class);
+        return view('Pelanggan.form');
     }
 
     public function store(Request $request)
     {
-        Pelanggan::create($this->validasi($request));
-        return redirect()->route('pelanggan.index');
+        Gate::authorize('create', Pelanggan::class);
+        // ... simpan data
     }
 
     public function edit(Pelanggan $pelanggan)
     {
-        return view('pelanggan.form', compact('pelanggan'));
+        Gate::authorize('update', $pelanggan);
+        return view('Pelanggan.form', compact('pelanggan'));
     }
 
     public function update(Request $request, Pelanggan $pelanggan)
     {
-        $pelanggan->update($this->validasi($request));
-        return redirect()->route('pelanggan.index');
+        Gate::authorize('update', $pelanggan);
+        // ... update data
     }
 
     public function destroy(Pelanggan $pelanggan)
     {
+        Gate::authorize('delete', $pelanggan);
         $pelanggan->delete();
         return redirect()->route('pelanggan.index');
     }
-
-    private function validasi(Request $request): array
-    {
-        return $request->validate([
-            'nama'    => 'required|string|max:255',
-            'alamat'  => 'required|string|max:255',
-            'notelp'  => 'required|string|max:20',
-            'catatan' => 'nullable|string|max:255',
-        ]);
-    }
 }
+
